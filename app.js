@@ -6,69 +6,30 @@ const map = L.map('map').setView(
 );
 
 // Basemap
-
 L.tileLayer(
-'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-{
-    attribution:'© OpenStreetMap'
-}
+    'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    {
+        attribution: '© OpenStreetMap'
+    }
 ).addTo(map);
 
 
-// fetch weather data
+// Fetch weather data
 async function getWeather(lat, lon) {
-//if url has line breaks the url may not work, so we use template literals to create the url in one line
-  //  const url =`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m`;
-    const url =`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation`;
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation`;
     
     console.log(url);
-
     const response = await fetch(url);
-
     const data = await response.json();
     
     console.log(data);
-
     return data;
 }
 
-//display weather data/ returned values
-async function addWeatherMarker(lat, lon) {
-    console.log("Adding marker...");
-
-    const weather = await getWeather(lat, lon);
-    const current = weather.current;
-    
-    const temp = current.temperature_2m;
-    const humidity = current.relative_humidity_2m;
-    const wind = current.wind_speed_10m;
-    const rain = current.precipitation;
-
-    L.marker([lat, lon])
-        .addTo(map)
-        .bindPopup(`
-            <b>Current Weather</b><br>
-            Temperature:${temp} °C <br>
-            Humidity:${humidity} % <br>
-            Wind Speed:${wind} km/h <br>
-            Precipitation:${rain} mm <br>
-        `);
-}
-/*
-/// add weather marker for Watamu
-addWeatherMarker(
-    -3.34944,
-    40.01959
-);
-*/
-
-//Add reverse geocoding (town name)
+// Add reverse geocoding (town name)
 async function getTownName(lat, lon) {
-
     const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
-
     const res = await fetch(url);
-
     const data = await res.json();
 
     return data.address?.city ||
@@ -77,41 +38,93 @@ async function getTownName(lat, lon) {
            data.address?.county ||
            "Unknown location";
 }
+
 // Format date + time
 function getDateTime() {
-
     const now = new Date();
-
     return {
         date: now.toLocaleDateString(),
         time: now.toLocaleTimeString()
     };
 }
 
-// make interactive
+// Track interactive marker globally
 let weatherMarker = null;
 
+// Handle map click interaction
 map.on('click', async function(e) {
-
     const lat = e.latlng.lat;
     const lon = e.latlng.lng;
 
     try {
-
-        // 🌍 town name
+        // 🌍 Fetch location town name
         const town = await getTownName(lat, lon);
 
-        // 🌡 weather
+        // 🌡 Fetch weather metrics
         const weather = await getWeather(lat, lon);
         const current = weather.current || {};
 
-        // 🕒 time
+        // 🕒 Get timestamp
         const dt = getDateTime();
 
         const temp = current.temperature_2m ?? "N/A";
         const humidity = current.relative_humidity_2m ?? "N/A";
         const wind = current.wind_speed_10m ?? "N/A";
         const rain = current.precipitation ?? "N/A";
+
+        // Remove old marker if user clicks a new spot
+        if (weatherMarker) {
+            map.removeLayer(weatherMarker);
+        }
+
+        // Build responsive HTML string structure
+        const popupContent = `
+            <div style="margin: 0; padding: 0;">
+                <b style="font-size: 1.15em; color: #0056b3;">📍 ${town}</b>
+                <hr style="border:0; border-top: 1px solid #eee; margin: 8px 0;">
+                
+                <span style="color: #666;">🌐 Coordinates:</span><br>
+                ↳ Lat: ${lat.toFixed(5)}<br>
+                ↳ Lon: ${lon.toFixed(5)}<br>
+                
+                <hr style="border:0; border-top: 1px solid #eee; margin: 8px 0;">
+                📅 ${dt.date} &nbsp;|&nbsp; 🕒 ${dt.time}<br>
+                
+                <hr style="border:0; border-top: 1px solid #eee; margin: 8px 0;">
+                🌡️ <b>Temperature:</b> ${temp} °C<br>
+                💧 <b>Humidity:</b> ${humidity}%<br>
+                💨 <b>Wind Speed:</b> ${wind} km/h<br>
+                🌧️ <b>Precipitation:</b> ${rain} mm
+            </div>
+        `;
+
+        // Create marker & assign the customized CSS class
+        weatherMarker = L.marker([lat, lon])
+            .addTo(map)
+            .bindPopup(popupContent, {
+                className: 'weather-popup', // Matches your updated CSS
+                autoPan: true               // Smoothly shifts the map to fit the huge popup
+            })
+            .openPopup();
+
+    } catch (err) {
+        console.error(err);
+
+        if (weatherMarker) {
+            map.removeLayer(weatherMarker);
+        }
+
+        weatherMarker = L.marker([lat, lon])
+            .addTo(map)
+            .bindPopup("⚠️ Error loading data. Please try again.", {
+                className: 'weather-popup'
+            })
+            .openPopup();
+    }
+});
+
+/*
+v2
 
         if (weatherMarker) {
             map.removeLayer(weatherMarker);
@@ -136,33 +149,6 @@ map.on('click', async function(e) {
                 maxWidth: 350
             })
             .openPopup();
-            
-        const isMobile = window.innerWidth < 480;
-        const content = isMobile ? `
-        🌡 ${temp}°C | 💧 ${humidity}%<br>
-        💨 ${wind} km/h | 🌧 ${rain} mm<br>
-        📍 ${town}
-        ` : `
-        <b>📍 ${town}</b><br>
-        🌡 Temp: ${temp} °C<br>
-        💧 Humidity: ${humidity}%<br>
-        💨 Wind: ${wind} km/h<br>
-        🌧 Rain: ${rain} mm
-        `;
-
-    } catch (err) {
-
-        console.error(err);
-
-        L.marker([lat, lon])
-            .addTo(map)
-            .bindPopup("Error loading data")
-            .openPopup();
-    }
-});
-
-/*
-
 <b>🌍 ${town}</b><br>
                 🌐 Coordinates:<br>
                 Lat: ${lat.toFixed(5)}<br>

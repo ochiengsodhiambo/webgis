@@ -20,49 +20,52 @@ body {
 
 
 /* Weather popup styling */
-.weather-popup {
-    font-size: 14px;
-    line-height: 1.5;
+
+/* 1. Global Leaflet overrides to allow massive growth */
+.weather-popup.leaflet-popup {
+    /* Dynamic width based on screen size */
+    width: 35vw !important; 
+    min-width: 320px !important; /* Keeps it readable on small screens */
+    max-width: 550px !important; /* Caps it on ultra-wide desktop monitors */
 }
+
+/* 2. Outer wrapper box styling */
 .weather-popup .leaflet-popup-content-wrapper {
-    border-radius: 10px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+    padding: 10px;
 }
 
+/* 3. Text & Content inner container */
 .weather-popup .leaflet-popup-content {
-    margin: 12px;
-    width: 100%;
-    max-width: 320px;
+    margin: 15px;
+    width: auto !important; /* Lets it fill the wrapper perfectly */
+    font-size: 16px;        /* Noticeably larger base text size */
+    line-height: 1.6;
+    color: #222;
 }
 
-/* Desktop */
-.weather-popup {
-    font-size: 14px;
-}
+/* MEDIA QUERIES (BREAKPOINTS)*/
 
-/* Tablet */
+/* Tablets (Medium screens) */
 @media (max-width: 768px) {
-
-    .weather-popup .leaflet-popup-content {
-        max-width: 260px;
+    .weather-popup.leaflet-popup {
+        width: 60vw !important; /* Expands to fill more of the smaller view */
     }
-
-    .weather-popup {
-        font-size: 13px;
+    .weather-popup .leaflet-popup-content {
+        font-size: 15px; 
     }
 }
 
-/* Phone */
+/* Mobile Phones (Small screens) */
 @media (max-width: 480px) {
-
+    .weather-popup.leaflet-popup {
+        width: 85vw !important; /* Spans almost edge-to-edge on phones */
+        min-width: auto !important; 
+    }
     .weather-popup .leaflet-popup-content {
-        max-width: 90vw;   /* 🔥 key fix */
-    }
-
-    .leaflet-popup {
-        width: 90vw !important;  /* forces full responsive width */
-    }
-
-    .weather-popup {
-        font-size: 12px;
+        font-size: 14px; /* Slightly scaled down for small phone screens */
+        margin: 10px;
     }
 }

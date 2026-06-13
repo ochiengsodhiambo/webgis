@@ -24,35 +24,45 @@ body {
     font-size: 14px;
     line-height: 1.5;
 }
-
-.weather-popup .leaflet-popup-content {
-    margin: 10px;
-    max-width: 300px;
-    word-wrap: break-word;
+.weather-popup .leaflet-popup-content-wrapper {
+    border-radius: 10px;
 }
 
-/* Mobile phones */
+.weather-popup .leaflet-popup-content {
+    margin: 12px;
+    width: 100%;
+    max-width: 320px;
+}
+
+/* Desktop */
+.weather-popup {
+    font-size: 14px;
+}
+
+/* Tablet */
 @media (max-width: 768px) {
+
+    .weather-popup .leaflet-popup-content {
+        max-width: 260px;
+    }
+
+    .weather-popup {
+        font-size: 13px;
+    }
+}
+
+/* Phone */
+@media (max-width: 480px) {
+
+    .weather-popup .leaflet-popup-content {
+        max-width: 90vw;   /* 🔥 key fix */
+    }
+
+    .leaflet-popup {
+        width: 90vw !important;  /* forces full responsive width */
+    }
 
     .weather-popup {
         font-size: 12px;
     }
-
-    .weather-popup .leaflet-popup-content {
-        max-width: 180px;
-    }
-
-}
-
-/* styling for very small screens */
-@media (max-width: 480px) {
-
-    .weather-popup {
-        font-size: 11px;
-    }
-
-    .weather-popup .leaflet-popup-content {
-        max-width: 150px;
-    }
-
 }

@@ -133,7 +133,7 @@ map.on('click', async function(e) {
             `,
             {
                 className: 'weather-popup',
-                maxWidth: 300
+                maxWidth: 350
             })
             .openPopup();
 

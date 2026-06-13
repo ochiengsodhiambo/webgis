@@ -1,0 +1,58 @@
+body {
+    margin:0;
+}
+
+#map {
+    height:100vh;
+    width:100%;
+}
+#coords {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    z-index: 1000;
+
+    background: rgba(255, 255, 255, 0.090);
+    padding: 8px;
+    border-radius: 6px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.2);
+}
+
+
+/* Weather popup styling */
+.weather-popup {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.weather-popup .leaflet-popup-content {
+    margin: 10px;
+    max-width: 300px;
+    word-wrap: break-word;
+}
+
+/* Mobile phones */
+@media (max-width: 768px) {
+
+    .weather-popup {
+        font-size: 12px;
+    }
+
+    .weather-popup .leaflet-popup-content {
+        max-width: 180px;
+    }
+
+}
+
+/* styling for very small screens */
+@media (max-width: 480px) {
+
+    .weather-popup {
+        font-size: 11px;
+    }
+
+    .weather-popup .leaflet-popup-content {
+        max-width: 150px;
+    }
+
+}

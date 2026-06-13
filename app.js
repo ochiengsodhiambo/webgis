@@ -136,6 +136,19 @@ map.on('click', async function(e) {
                 maxWidth: 350
             })
             .openPopup();
+            
+        const isMobile = window.innerWidth < 480;
+        const content = isMobile ? `
+        🌡 ${temp}°C | 💧 ${humidity}%<br>
+        💨 ${wind} km/h | 🌧 ${rain} mm<br>
+        📍 ${town}
+        ` : `
+        <b>📍 ${town}</b><br>
+        🌡 Temp: ${temp} °C<br>
+        💧 Humidity: ${humidity}%<br>
+        💨 Wind: ${wind} km/h<br>
+        🌧 Rain: ${rain} mm
+        `;
 
     } catch (err) {
 
